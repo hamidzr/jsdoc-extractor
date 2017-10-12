@@ -4,13 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha",
+    "testmon": "nodemon --exec 'mocha test/'"
   },
   "author": "Hamid Zare",
   "license": "MIT",
   "dependencies": {
     "doctrine": "^2.0.0",
-    "fs-extra": "^4.0.2"
+    "fs-extra": "^4.0.2",
+    "mocha": "^4.0.1"
   },
   "devDependencies": {}
 }
