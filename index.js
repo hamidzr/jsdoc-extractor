@@ -3,10 +3,10 @@ const fse = require('fs-extra'),
 
 const FILE= process.argv[2];
 
-const MARKER_START = '/**';
-const MARKER_START_SKIP = '/***';
-const MARKER_END = '*/';
-const SEARCH_SIZE = 5;
+const MARKER_START = '/**',
+    MARKER_START_SKIP = '/***',
+    MARKER_END = '*/',
+    SEARCH_SIZE = 5;
 
 fse.readFile(FILE, 'UTF8')
     .then(source => {
@@ -20,8 +20,18 @@ fse.readFile(FILE, 'UTF8')
         });
         blocks.forEach(block => {
             let linesToSearch = lines.slice(block.endLine, block.endLine + SEARCH_SIZE);
-            let fnName = findFn(linesToSearch);
-            block.fnName = fnName;
+            // if @name is set jsut use that and save a few cycles
+            if (block.parsed.tags.some(tag => tag.title === 'name')) {
+                block.fnName  = block.parsed.tags.find(tag => tag.title === 'name').name;
+                console.log('fn name set through @name', block.fnName);
+            } else {
+                let fnName = findFn(linesToSearch);
+                if (!fnName){
+                    throw `can't associate ${block} with any function`;
+                    // TODO filter / ignore this one and keep going
+                }
+                block.fnName = fnName;
+            }
         });
 
         console.log(blocks.map(b => b.parsed.tags));
@@ -78,7 +88,7 @@ function extractDocBlocks(source){
 }
 
 // credit: https://github.com/yavorskiy/comment-parser
-function mkextract (opts) {
+function mkextract () {
     var chunk = null;
     var indent = 0;
     var number = 1;
